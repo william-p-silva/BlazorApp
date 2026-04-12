@@ -1,0 +1,46 @@
+﻿@using BlazorApp.Model
+@using BlazorApp.Services
+@using System.Globalization
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+@inject PedidoService PedidoSvc
+
+
+
+	<div class="">
+	<label class="form-label">Nome Completo</label>
+	<input class="form-control mb-1" @ref="inputNome" placeholder="Nome Exemplo" @bind="endereco.NomeCliente" />
+	<br />
+	<label class="form-label">Cidade da Entrega</label>
+	<input class="form-control mb-1" placeholder="Cidade Exemplo" @bind="endereco.Cidade" />
+	<br />
+	<label class="form-label">Bairro da Entrega</label>
+	<input class="form-control mb-1" placeholder="Bairro Exemplo" @bind="endereco.Bairro" />
+	<br />
+	<label class="form-label">Rua da Entrega</label>
+	<input class="form-control mb-1" placeholder="Rua Exemplo, 123" @bind="endereco.Rua" />
+	<br />
+	<label class="form-label">Número da Casa</label>
+	<input class="form-control mb-1" placeholder="Exemplo 123" @bind="endereco.Numero" />
+	<br />
+	<label class="form-label">Telefone para Contato</label>
+	<input class="form-control mb-1" placeholder="(11) 91234-5678" @bind="endereco.Telefone" />
+
+	</div>
+
+
+
+@code {
+	[Parameter] public Endereco endereco { get; set; }
+
+	private ElementReference inputNome;
+
+	protected override async Task OnAfterRenderAsync(bool fistRender)
+	{
+		if (fistRender)
+		{
+			await inputNome.FocusAsync();
+		}
+	}
+
+}

@@ -1,0 +1,87 @@
+﻿@page "/myorder"
+@using BlazorApp.Model
+@using BlazorApp.Services
+
+@inject NavigationManager NavigationManager
+@inject PedidoService PedidoSvc
+
+@layout Layout.LayoutPrincipal
+<PageTitle>Meus Pedidos</PageTitle>
+
+@if (Pedidos?.Any() == true)
+{
+	<div>
+		<h1>Meus Pedidos</h1>
+		@foreach (var pedido in Pedidos)
+		{
+			<div class="card mb-4 shadow-sm">
+				<div class="card-header bg-danger text-white">
+					<h5 class="mb-0">Pedido #@pedido.Id</h5>
+					<NavLink class="btn btn-outline-primary" href="@($"/myorder/{pedido.Id}")">
+						Ver Detalhes
+					</NavLink>
+				</div>
+
+				<div class="card-body">
+					<div class="row">
+						@foreach (var pizza in pedido.Pizzas)
+						{
+							<div class="col-md-6 mb-3">
+								<div class="card h-100 border-0 shadow-sm">
+									<div class="card-body">
+										<h5 class="card-title">@pizza.Nome</h5>
+										<p class="card-text">@pizza.Descricao</p>
+
+										<ul class="list-group list-group-flush mb-2">
+											<li class="list-group-item">
+												<strong>Tamanho:</strong> @pizza.Tamanho
+											</li>
+											<li class="list-group-item">
+												<strong>Preço:</strong> @pizza.GetFormatPrecoTotal()
+											</li>
+											<li class="list-group-item">
+												<strong>Vegetariana:</strong> @(pizza.Vegetariana ? "Sim" : "Não")
+											</li>
+											<li class="list-group-item">
+												<strong>Vegana:</strong> @(pizza.Vegana ? "Sim" : "Não")
+											</li>
+										</ul>
+										
+									</div>
+								</div>
+							</div>
+						}
+						
+					</div>
+					
+				</div>
+
+			</div>
+		}
+	</div>
+}
+else
+{
+	<div class="container text-center mt-5">
+		<h2 class="text-muted">Você ainda não tem pedidos</h2>
+	</div>
+}
+
+
+@code {
+	private List<Pedido> Pedidos { get; set; } = new List<Pedido>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			Pedidos = await PedidoSvc.GetPedidosAsync(NavigationManager.BaseUri);
+		}
+		catch (Exception ex)
+		{
+			// log e fallback: Pedidos = new List<Pedido>();
+			Pedidos = new List<Pedido>();
+			Console.WriteLine($"Erro ao carregar pedidos: {ex.Message}");
+		}
+	}
+}

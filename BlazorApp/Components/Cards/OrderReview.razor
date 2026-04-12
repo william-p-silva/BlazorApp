@@ -1,0 +1,37 @@
+﻿@using BlazorApp.Model
+@using BlazorApp.Services
+@using System.Globalization
+
+
+
+
+
+
+
+
+
+	<div class="checkout-order-details">
+		<h4>Revisar Pedido</h4>
+		@foreach (var pizza in pedido.Pizzas)
+		{
+		<div class="bg-dark text-white p-2 class= rounded m-3">
+				<p>Nome: @pizza.Nome</p>
+				<p>Tamanho: @pizza.Tamanho cm</p>
+				<p>Descrição: @pizza.Descricao</p>
+				<p>Preço: R$ @pizza.GetPrecoTotal()</p>
+			</div>
+		}
+
+		<p>
+			<strong>
+				Preço Total:
+				@pedido.GetPrecoTotal().ToString("C", CultureInfo.GetCultureInfo("pt-BR"))
+			</strong>
+		</p>
+	</div>
+
+
+
+@code {
+	[Parameter] public Pedido pedido { get; set; }
+}
