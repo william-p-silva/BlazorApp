@@ -1,0 +1,54 @@
+﻿@page "/MenuPizzas"
+@using BlazorApp.Model
+@using BlazorApp.Services
+@inject PizzaService PizzaSvc
+@inject NavigationManager NavigationManager
+
+<PageTitle>Menu de Pizzas</PageTitle>
+
+
+@if (pizzas != null && pizzas.Any())
+{
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table  table-striped border">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Descrição</th>
+                    <th scope="col" class="text-end">Preço Base</th>
+					<th scope="col" class="text-end">Vegetariana</th>
+                    <th scope="col" class="text-end">Vegana</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pizza in pizzas)
+                {
+                    <tr class="table-hover ">
+                        <td class="fw-bold">@pizza.Nome</td>
+                        <td class="text-muted">@pizza.Descricao</td>
+                        <td class="text-end text-success fw-bold">
+                            R$ @pizza.GetFormatPrecoBase()
+                        </td>
+                        <td class="fw-bold">@(pizza.Vegetariana == false ? "Não" : "Sim") </td>
+                        <td class="fw-bold">@(pizza.Vegana == false ? "Não" : "Sim") </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i> Buscando cardápio de pizzas...
+    </div>
+}
+
+@code {
+	private List<ModeloPizza> pizzas = new();    
+
+	protected override async Task OnInitializedAsync()
+	{
+		pizzas = await PizzaSvc.GetPizzasAsync(NavigationManager.BaseUri);
+	}
+}

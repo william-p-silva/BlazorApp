@@ -1,0 +1,31 @@
+﻿@using BlazorApp.Model
+@using BlazorApp.Services
+@rendermode InteractiveServer
+@inject OrderState OrderState
+
+
+@if (listaPizzas != null)
+{
+	<ul class="pizza-cards">
+		@foreach (var pizza in listaPizzas)
+		{
+			<li style="background-image: url('@pizza.ImagemUrl')" @onclick="@(() => OrderState.ShowConfigureDialog(pizza))">
+				<div class="pizza-info">
+					<span class="title">@pizza.Nome</span>
+					@* Adicionei uma classe ou apenas envolvi em span para alinhar com o CSS *@
+					<span>@pizza.Descricao</span>
+					<span class="price">@pizza.GetFormatPrecoBase()</span>
+				</div>
+			</li>
+		}
+	</ul>
+}
+else
+{
+	<p>Não Há Pizzas no Momento :(</p>
+}
+
+@code {
+	[Parameter]
+	public List<ModeloPizza> listaPizzas { get; set; } = new();
+}

@@ -1,0 +1,35 @@
+﻿@using BlazorApp.Model
+@rendermode InteractiveServer
+
+<div class="dialog-container">
+    <div class="dialog">
+        <div class="dialog-title">
+            <h2>@Pizza.Nome</h2>
+            @Pizza.Descricao
+        </div>
+        <form class="dialog-body">
+            <div>
+                <label>Tamanho @Pizza.Tamanho cm</label>
+                @* O curso usa um input range, vamos manter a estrutura *@
+                <input type="range" min="@Pizza.TamanhoMinimo" max="@Pizza.TamanhoMaximo" step="1"
+					   @bind="Pizza.Tamanho" 
+                       @bind:event="oninput"/>
+            </div>
+        </form>
+
+        <div class="dialog-buttons">
+            <button class="btn btn-secondary" @onclick="OnCancel">Cancelar</button>
+            <span class="price">
+                Preço: @Pizza.GetFormatPrecoTotal()
+            </span>
+            <button class="btn btn-success" @onclick="OnConfirm">Pedir </button>
+        </div>
+    </div>
+</div>
+
+@code {
+	[Parameter] public ModeloPizza Pizza { get; set; } = new();
+
+	[Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+}

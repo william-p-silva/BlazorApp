@@ -1,0 +1,56 @@
+﻿@page "/myorder/{orderId:int}"
+@using BlazorApp.Model
+@using BlazorApp.Services
+@inject NavigationManager NavigationManager
+@inject PedidoService PedidoSvc
+
+<PageTitle>Detalhes do Pedido</PageTitle>
+
+<div class="main">
+    @if (InvalidOrder)
+    {
+        <h2>Pedido não encontrado</h2>
+        <p>Lamentamos, mas este pedido não existe.</p>
+    }
+    else if (pedido == null)
+    {
+        <p>Carregando detalhes... 🍕</p>
+    }
+    else
+    {
+        <div class="track-order">
+            <h2>Pedido realizado em @pedido.DataCriacao.ToLongDateString()</h2>
+            <div class="track-order-body">
+                @foreach (var pizza in pedido.Pizzas)
+                {
+                    <p>
+                        <strong>@pizza.Tamanho cm @pizza.Nome (R$ @pizza.GetFormatPrecoTotal())</strong>
+                    </p>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+	[Parameter] public int orderId { get; set; }
+
+	Pedido? pedido;
+	bool InvalidOrder = false;
+	protected override async Task OnParametersSetAsync()
+	{
+		try
+		{
+			pedido = await PedidoSvc.GetPedidoIdAsync(NavigationManager.BaseUri, orderId);
+			if (pedido == null)
+			{
+				InvalidOrder = true;
+			}
+		}
+		catch (Exception ex)
+		{
+			InvalidOrder = true;
+			Console.WriteLine($"Error fetching order details: {ex.Message}");
+		}
+	}
+}

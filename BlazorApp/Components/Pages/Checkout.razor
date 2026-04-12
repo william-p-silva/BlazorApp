@@ -1,0 +1,68 @@
+﻿@page "/checkout"
+@rendermode InteractiveServer
+
+<PageTitle>Checkout</PageTitle>
+
+@using BlazorApp.Model
+@using BlazorApp.Services
+@using System.Globalization
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+@inject PedidoService PedidoSvc
+@implements IDisposable
+
+<div class="main ">
+
+	<div class="checkout-cols">
+		<OrderReview pedido="OrderState.PedidoAtivo" />
+
+		<AddressEditor endereco="OrderState.PedidoAtivo.EnderecoEntrega"/>
+		
+	</div>
+
+	<button class="checkout-button btn btn-warning" @onclick="PedidoFinalizado" disabled="@isSubmitting">
+		Confirmar Pedido
+	</button>
+</div>
+@code {
+	bool isSubmitting;
+
+	private Pedido pedido => OrderState.PedidoAtivo;
+
+	private async Task PedidoFinalizado()
+	{
+		try
+		{
+			if (pedido.Pizzas.Any())
+			{
+				isSubmitting = true;
+
+				int response = await PedidoSvc.PlaceOrderAsync(NavigationManager.BaseUri, pedido);
+				OrderState.ResetOrder();
+
+				NavigationManager.NavigateTo($"/myorder/{response}");
+			}
+			else
+			{
+				isSubmitting = false;
+			}
+		}
+		catch (Exception ex)
+		{
+			isSubmitting = false;
+			Console.WriteLine($"Erro ao finalizar pedido: {ex.Message}");
+		}
+
+
+	}
+	public void Dispose()
+	{
+		OrderState.OnChange -= StateHasChanged;
+	}
+
+	protected override void OnInitialized()
+	{
+		OrderState.OnChange += StateHasChanged;
+	}
+
+}

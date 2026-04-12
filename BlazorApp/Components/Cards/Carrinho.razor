@@ -1,0 +1,49 @@
+﻿@using BlazorApp.Model
+@using BlazorApp.Services
+@rendermode InteractiveServer
+@inject OrderState OrderState
+@inject NavigationManager NavigationManager
+
+
+<div class="sidebar">
+	@if (OrderState.PedidoAtivo.Pizzas.Any())
+	{
+		<div class="order-contents ">
+			<h2>Seu pedido</h2>
+			@foreach (var pizza in OrderState.PedidoAtivo.Pizzas)
+			{
+				<div class="cart-item">
+					<a class="delete-item" @onclick="@(() => OrderState.RemovePizza(pizza))" > X</a>
+					<p class="title">@pizza.Tamanho " @pizza.Nome</p>
+					<p class="item-price">R$ @pizza.GetFormatPrecoTotal()</p>
+					
+				</div>
+
+			}
+		</div>
+	}
+	else
+	{
+		<div class="empty-cart">Escolha uma pizza<br>para começar!</div>
+	}
+
+	<div class="order-total">
+		Total:
+		<span class="total-price">
+			@OrderState.PrecoTotalPedido.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))
+		</span>
+		<button class="btn btn-warning"
+				disabled="@(!OrderState.PedidoAtivo.Pizzas.Any())"
+				@onclick='() => NavigationManager.NavigateTo("/checkout")'>
+			Finalizar >
+		</button>
+	</div>
+</div>
+
+@code
+{
+	protected override void OnInitialized()
+	{
+		OrderState.OnChange += StateHasChanged;
+	}
+}

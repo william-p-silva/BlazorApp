@@ -1,0 +1,57 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using BlazorApp.Services
+@using BlazorApp.Model
+@inject PizzaService PizzaSvc
+@inject NavigationManager NavigationManager
+@inject OrderState OrderState
+@implements IDisposable
+
+<PageTitle>Home</PageTitle>
+
+<div class="main">
+	<h1>Blazing Pizzas</h1>
+	<a href="/rvedhjbv" >Lista</a>
+	@if (pizzas != null && pizzas.Any())
+	{
+		<CardPizza listaPizzas="pizzas" />
+	}
+	else
+	{
+		<div class="alert alert-info">
+			<i class="bi bi-info-circle me-2"></i> Buscando cardápio de pizzas...
+		</div>
+	}
+</div>
+
+@if (OrderState.ShowingConfigureDialog)
+{
+	
+	<ConfigurePizzaDialog 
+		Pizza="OrderState.ConfiguringPizza"
+		OnCancel="OrderState.CancelConfiguringPizza"
+		OnConfirm="OrderState.ConfirmConfiguringPizza" />
+}
+
+@if (OrderState.PedidoAtivo.Pizzas.Any())
+{
+	<Carrinho />
+}
+
+@code {
+	private List<ModeloPizza> pizzas = new();
+
+
+	public void Dispose()
+	{
+		OrderState.OnChange -= StateHasChanged;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		OrderState.OnChange += StateHasChanged;
+		pizzas = await PizzaSvc.GetPizzasAsync(NavigationManager.BaseUri);
+	}
+
+}
+
