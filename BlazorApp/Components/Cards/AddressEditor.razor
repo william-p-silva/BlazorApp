@@ -7,40 +7,37 @@
 
 
 
-	<div class="">
-	<label class="form-label">Nome Completo</label>
-	<input class="form-control mb-1" @ref="inputNome" placeholder="Nome Exemplo" @bind="endereco.NomeCliente" />
-	<br />
-	<label class="form-label">Cidade da Entrega</label>
-	<input class="form-control mb-1" placeholder="Cidade Exemplo" @bind="endereco.Cidade" />
-	<br />
-	<label class="form-label">Bairro da Entrega</label>
-	<input class="form-control mb-1" placeholder="Bairro Exemplo" @bind="endereco.Bairro" />
-	<br />
-	<label class="form-label">Rua da Entrega</label>
-	<input class="form-control mb-1" placeholder="Rua Exemplo, 123" @bind="endereco.Rua" />
-	<br />
-	<label class="form-label">Número da Casa</label>
-	<input class="form-control mb-1" placeholder="Exemplo 123" @bind="endereco.Numero" />
-	<br />
-	<label class="form-label">Telefone para Contato</label>
-	<input class="form-control mb-1" placeholder="(11) 91234-5678" @bind="endereco.Telefone" />
+<div class="">
 
-	</div>
+		<label class="form-label">Nome Completo</label>
+		<InputText class="form-control mb-1" placeholder="Nome Exemplo" @bind-Value="endereco.NomeCliente" />
+		<br />
+
+		<label class="form-label">Cidade da Entrega</label>
+		<InputText class="form-control mb-1" placeholder="Cidade Exemplo" @bind-Value="endereco.Cidade" />
+		<br />
+
+		<label class="form-label">Bairro da Entrega</label>
+		<InputText class="form-control mb-1" placeholder="Bairro Exemplo" @bind-Value="endereco.Bairro" />
+		<br />
+
+		<label class="form-label">Rua da Entrega</label>
+		<InputText class="form-control mb-1" placeholder="Rua Exemplo, 123" @bind-Value="endereco.Rua" />
+		<br />
+
+		<label class="form-label">Número da Casa</label>
+		<InputText class="form-control mb-1" placeholder="Exemplo 123" @bind-Value="endereco.Numero" />
+		<br />
+
+		<label class="form-label">Telefone para Contato</label>
+		<InputText class="form-control mb-1" placeholder="(11) 91234-5678" @bind-Value="endereco.Telefone" />
+
+</div>
 
 
 
 @code {
-	[Parameter] public Endereco endereco { get; set; }
+	[Parameter] public Endereco endereco { get; set; } = new();
 
-	private ElementReference inputNome;
-
-	protected override async Task OnAfterRenderAsync(bool fistRender)
-	{
-		if (fistRender)
-		{
-			await inputNome.FocusAsync();
-		}
-	}
-
+	
 }

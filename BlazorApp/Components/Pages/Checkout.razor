@@ -12,49 +12,74 @@
 @implements IDisposable
 
 <div class="main ">
+	<EditForm Model="pedido" OnSubmit="CheckSubmission">
+		<div class="checkout-cols">
 
-	<div class="checkout-cols">
-		<OrderReview pedido="OrderState.PedidoAtivo" />
+			<OrderReview pedido="OrderState.PedidoAtivo" />
+			@if (isError)
+			{
+				<div class="alert alert-danger">Por favor, preencha o nome, cidade e rua.</div>
+			}
+			<AddressEditor endereco="OrderState.PedidoAtivo.EnderecoEntrega" />
 
-		<AddressEditor endereco="OrderState.PedidoAtivo.EnderecoEntrega"/>
+		</div>
+
+		<input class="checkout-button btn btn-warning" type="submit"  value="Confirmar Pedido" />
+			
 		
-	</div>
-
-	<button class="checkout-button btn btn-warning" @onclick="PedidoFinalizado" disabled="@isSubmitting">
-		Confirmar Pedido
-	</button>
+	</EditForm>
 </div>
 @code {
 	bool isSubmitting;
 
 	private Pedido pedido => OrderState.PedidoAtivo;
 
-	private async Task PedidoFinalizado()
+	bool isError = false;
+
+	private async Task CheckSubmission(EditContext editContext)
 	{
 		try
 		{
-			if (pedido.Pizzas.Any())
-			{
-				isSubmitting = true;
+			isSubmitting = true;
+			var model = pedido.EnderecoEntrega;
 
-				int response = await PedidoSvc.PlaceOrderAsync(NavigationManager.BaseUri, pedido);
-				OrderState.ResetOrder();
+			isError = string.IsNullOrWhiteSpace(model?.NomeCliente) 
+			|| string.IsNullOrWhiteSpace(model?.Cidade)
+			|| string.IsNullOrWhiteSpace(model?.Bairro)
+			|| string.IsNullOrWhiteSpace(model?.Rua)
+			|| string.IsNullOrWhiteSpace(model?.Numero)
+			|| string.IsNullOrWhiteSpace(model?.Telefone);
 
-				NavigationManager.NavigateTo($"/myorder/{response}");
-			}
-			else
+			if (!isError)
 			{
-				isSubmitting = false;
+				await SalvarPedido();
 			}
+
 		}
 		catch (Exception ex)
 		{
-			isSubmitting = false;
-			Console.WriteLine($"Erro ao finalizar pedido: {ex.Message}");
+			Console.WriteLine($"Erro ao salvar endereço: {ex.Message}");
 		}
-
-
 	}
+
+	private async Task SalvarPedido()
+	{
+		try
+		{
+			int id = await PedidoSvc.PlaceOrderAsync(NavigationManager.BaseUri, pedido);
+			OrderState.ResetOrder();
+			NavigationManager.NavigateTo($"/myorder/{id}");
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Erro ao salvar pedido: {ex.Message}");
+		}
+		finally
+		{
+			isSubmitting = false;
+		}
+	}
+
 	public void Dispose()
 	{
 		OrderState.OnChange -= StateHasChanged;
@@ -62,7 +87,12 @@
 
 	protected override void OnInitialized()
 	{
+
 		OrderState.OnChange += StateHasChanged;
+		if (pedido.EnderecoEntrega == null)
+		{
+			pedido.EnderecoEntrega = new Endereco();
+		}
 	}
 
 }
