@@ -12,19 +12,28 @@
 @implements IDisposable
 
 <div class="main ">
-	<EditForm Model="pedido" OnSubmit="CheckSubmission">
+	<EditForm  EditContext="editContext" OnValidSubmit="SalvarPedido" OnInvalidSubmit="ShowError">
+		<DataAnnotationsValidator />
+		
 		<div class="checkout-cols">
 
 			<OrderReview pedido="OrderState.PedidoAtivo" />
-			@if (isError)
-			{
-				<div class="alert alert-danger">Por favor, preencha o nome, cidade e rua.</div>
-			}
-			<AddressEditor endereco="OrderState.PedidoAtivo.EnderecoEntrega" />
+			<div>
+				<AddressEditor endereco="OrderState.PedidoAtivo.EnderecoEntrega" />
+				@if (isError)
+				{
+
+					<ValidationSummary />
+				}
+			</div>
+			
 
 		</div>
 
-		<input class="checkout-button btn btn-warning" type="submit"  value="Confirmar Pedido" />
+		<input class="checkout-button btn btn-warning" 
+		type="submit"  
+		value="Confirmar Pedido"
+		disabled="@(isError || isSubmitting)" />
 			
 		
 	</EditForm>
@@ -33,6 +42,8 @@
 	bool isSubmitting;
 
 	private Pedido pedido => OrderState.PedidoAtivo;
+
+	private EditContext editContext;
 
 	bool isError = false;
 
@@ -66,9 +77,9 @@
 	{
 		try
 		{
-			int id = await PedidoSvc.PlaceOrderAsync(NavigationManager.BaseUri, pedido);
+			int newOrderId = await PedidoSvc.PlaceOrderAsync(NavigationManager.BaseUri, pedido);
 			OrderState.ResetOrder();
-			NavigationManager.NavigateTo($"/myorder/{id}");
+			NavigationManager.NavigateTo($"/myorder/{newOrderId}");
 		}
 		catch (Exception ex)
 		{
@@ -84,15 +95,30 @@
 	{
 		OrderState.OnChange -= StateHasChanged;
 	}
+	protected void ShowError()
+	{
+		isError = true;
+	}
 
 	protected override void OnInitialized()
 	{
 
-		OrderState.OnChange += StateHasChanged;
 		if (pedido.EnderecoEntrega == null)
 		{
 			pedido.EnderecoEntrega = new Endereco();
 		}
+		editContext = new(OrderState.PedidoAtivo.EnderecoEntrega);
+
+		editContext.OnFieldChanged += HandleFieldChanged;
+
+		OrderState.OnChange += StateHasChanged;
+		
+	}
+
+	private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
+	{
+		isError = !editContext.Validate();
+		StateHasChanged();
 	}
 
 }

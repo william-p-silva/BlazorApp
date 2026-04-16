@@ -22,6 +22,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<PizzaService>();
 builder.Services.AddScoped<PedidoService>();
 builder.Services.AddScoped<OrderState>();
+builder.Services.AddScoped<EnderecoService>();
 
 
 

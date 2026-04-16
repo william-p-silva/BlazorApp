@@ -1,0 +1,54 @@
+﻿@page "/enderecos"
+
+@using BlazorApp.Model
+@using BlazorApp.Services
+@inject EnderecoService EnderecoSvc
+@inject NavigationManager NavigationManager
+
+<PageTitle>Endereços</PageTitle>
+
+<div class="container mt-4">
+	@if (enderecos == null || !enderecos.Any())
+	{
+		<div class="text-center mt-5">
+			<div class="spinner-border text-primary" role="status"></div>
+			<p>Buscando endereços...</p>
+		</div>
+	}
+	else
+	{
+		<div class="row">
+			@foreach (var endereco in enderecos)
+			{
+				<div class="col-md-6 col-lg-4 mb-3">
+					<div class="card shadow-sm h-100">
+						<div class="card-body">
+							<h5 class="card-title">@endereco.NomeCliente</h5>
+							<p class="card-text mb-1">
+								<strong>Telefone:</strong> @endereco.Telefone
+							</p>
+							<p class="card-text mb-1">
+								<strong>Cidade:</strong> @endereco.Cidade
+							</p>
+							<p class="card-text mb-1">
+								<strong>Bairro:</strong> @endereco.Bairro
+							</p>
+							<p class="card-text mb-1">
+								<strong>Rua:</strong> @endereco.Rua, @endereco.Numero
+							</p>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+</div>
+@code {
+	private List<Endereco> enderecos = new();
+	protected override async Task OnInitializedAsync()
+	{
+		enderecos = await EnderecoSvc.GetEnderecosAsync(NavigationManager.BaseUri);
+	}
+
+}
